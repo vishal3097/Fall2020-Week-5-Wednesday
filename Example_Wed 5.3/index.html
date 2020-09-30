@@ -29,7 +29,8 @@
         .keys(['y01', 'y02', 'y03','y04']);
     let stackedSeries = stack(data);
     let svg = d3.select('svg#main')
-        .selectAll('g')
+
+    let groups = svg.selectAll('g')
         .data(stackedSeries)
         .enter()
         .append('g')
@@ -37,7 +38,7 @@
             return stackcolors[i];
         });
 
-    svg.selectAll('rect')
+    groups.selectAll('rect')
         .data(function(d) {
             return d;
         })

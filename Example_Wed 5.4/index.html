@@ -14,6 +14,7 @@
     </svg>
 </div>
 <script>
+
     let data = [
         {y01: 120, y02: 180, y03: 100, y04: 77},
         {y01: 60,  y02: 185, y03: 105, y04: 123},
@@ -22,12 +23,46 @@
         {y01: 120, y02: 240, y03: 105, y04: 44}
     ];
     stackcolors = ['#53706f',
-                    '#5ea5a3',
-                    '#96d7ac',
-                    '#c6f1d4']
+        '#5ea5a3',
+        '#96d7ac',
+        '#c6f1d4']
+
+    // Step 1: stack Data
     let stack = d3.stack()
         .keys(['y01', 'y02', 'y03','y04']);
     let stackedSeries = stack(data);
+
+    // Step 2: Scale function
+    let yScale = d3.scaleLinear().domain([0, 600]).range([200, 0]);
+    // Step 3 area function
+    let area = d3.area()
+        .x(function(d, i) {
+            return i * 100;
+        })
+        .y0(function(d) {
+            return yScale(d[0]);
+        })
+        .y1(function(d) {
+            return yScale(d[1]);
+        });
+    // step 4
+    let svg = d3.select('svg#main')
+
+    svg.selectAll('path')
+        .data(stackedSeries)
+        .enter()
+        .append('path')
+        .style('fill', function(d, i) {
+            return stackcolors[i];
+        })
+        .attr('d', area)
+
+
+
+
+
+
+    /*
     let svg = d3.select('svg#main')
         .selectAll('g')
         .data(stackedSeries)
@@ -53,7 +88,7 @@
             return i * 20;
         })
         .attr('height', 20);
-
+*/
 </script>
 
 </body>
