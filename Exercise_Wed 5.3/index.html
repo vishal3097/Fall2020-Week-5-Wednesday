@@ -2,68 +2,88 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>d3 Stack Generator</title>
+    <title>Area Chart</title>
     <script src="../libs/d3/d3.min.js"></script>
+
 </head>
 <body>
-<h3>
-    d3 Stack Generator
-</h3>
-<div width="100%">
-    <svg id="main" width="100%" height="100%" viewBox="0 0 1000 800">
-    </svg>
+    <style>
+        </style>
+<div>
+    <h1>Area chart</h1>
 </div>
+<div width="100%">
+    <svg id="chart" width="100%"  height="100%" viewBox="0 0 1000 800">
+    
+    </svg>
+  </div>
+
 <script>
-    let data = [
-        {y01: 120, y02: 180, y03: 100, y04: 77},
-        {y01: 60,  y02: 185, y03: 105, y04: 123},
-        {y01: 100, y02: 215, y03: 110, y04: 131},
-        {y01: 80,  y02: 230, y03: 105, y04: 231},
-        {y01: 120, y02: 240, y03: 105, y04: 44}
-    ];
-    stackcolors = ['#53706f',
-                    '#5ea5a3',
-                    '#96d7ac',
-                    '#c6f1d4']
-    let stack = d3.stack()
-        .keys(['y01', 'y02', 'y03','y04']);
-    let stackedSeries = stack(data);
-    let svg = d3.select('svg#main')
 
-    let groups = svg.selectAll('g')
-        .data(stackedSeries)
-        .enter()
-        .append('g')
-        .style('fill', function(d, i) {
-            return stackcolors[i];
-        });
+ var svg = d3.select("svg"),
+    /*margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    */
+   margin = 40;
+   width = 300 - 2 * margin;
+   height = 400 - 2 * margin;
+//g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    groups.selectAll('rect')
-        .data(function(d) {
-            return d;
-        })
-        .enter()
-        .append('rect')
-        .attr('width', function(d) {
-            return d[1] - d[0];
-        })
-        .attr('x', function(d) {
-            return d[0];
-        })
-        .attr('y', function(d, i) {
-            return i * 20;
-        })
-        .attr('height', 20);
+keys = ['EstimatedCost','RawMaterial', 'Workmanship','YearlyStorage'];
+            
+            var xFormat = "%b-%Y";
+            var parseTime = d3.timeParse("%Y-%m");
+			
 
+    d3.csv("data_sample.csv").then(function(data){
+
+            console.log(data);
+
+            data.forEach(function(d) {
+                d.date = d.date;
+                d.EstimatedCost = +d.EstimatedCost;
+                d.RawMaterial = +d.RawMaterial;
+                d.Workmanship = +d.Workmanship;
+                d.YearlyStorage = +d.YearlyStorage;                
+            });
+
+             colors = ["#003f5c", "#444e86", "#ffa600", "#955196"]
+
+             stack = d3.stack().keys(keys);
+
+             series = stack(data);
+              
+             yScale = d3.scaleLinear().domain([0, d3.max(series, d => d3.max(d, d => d[1]))]).range([height,margin]);
+             xScale =  d3.scaleTime().domain(d3.extent(data,function(d){return parseTime(d.date);})).range([margin, width]);
+             
+
+             let area = d3.area()
+                        .x(function(d,i) {
+                            return i*45;
+                        })
+                        .y0(function(d) {
+                            return yScale(d[0]);
+                        })
+                        .y1(function(d) {
+                            return yScale(d[1]);
+                        });
+    // step 4
+            //let svg = d3.select('svg#main')
+
+            svg.selectAll('path')
+                .data(series)
+                .enter()
+                .append('path')
+                .style('fill', function(d, i) {
+                    return colors[i];
+                })
+                .attr('d', area)
+
+            }
+   );    
+  // format the data
+  
 </script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
