@@ -1,52 +1,69 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Week 4</title>
-    <meta charset="utf-8">
-    <!--create a new stylesheet document and include it here-->
-    <link href='style.css' rel='stylesheet' type='text/css'>
+    <meta charset="UTF-8">
+    <title>d3 Stack Generator</title>
+    <script src="../libs/d3/d3.min.js"></script>
 </head>
 <body>
-<div class="container">
-    <h1>CIS 586/ DSC 530 Week 4: Markup and Style</h1>
-    <nav role="navigation" class="nav-bar">
-        <a id="about"></a>
-        <ul>
-            <li><a href="#about">About Me</a></li>
-            <li><a href="#IndividualProject">Individual Project</a></li>
-            <li><a href="#GroupProject">Group Project</a></li>
-        </ul>
-    </nav>
-    <div class="projects">
-
-        <div class="about">
-            
-
-
-
-            <a id="about"></a>
-            <h2>About</h2>
-            <img src="assets/filler.jpg" alt="placeholder"/>
-            <p>My name is Vishal Dholariya and currently i am pursuing my masters in computer science.My specific interest are in deep learning, data visualization and software application.</p>
-        </div>
-        <div class="pro individual">
-            
-
-
-
-            <a id="IndividualProject"></a>
-            <h2>Individual Project</h2>
-            <img src="assets/filler.jpg" alt="placeholder"/>
-            <p>My project name is earthquake measures. This project is regarding the earthquakes that occurred in numerous countries.
- </p>
-        </div>
-        <a id="GroupProject"></a>
-        <div class="pro group">
-            <h2>Group Project</h2>
-            <img src="assets/filler.jpg" alt="placeholder"/>
-            <p>My group project is about pattern analysis on evolution of trade.This project covers import and export data over the world which includes analyzing the patterns of evolution of trade.</p>
-        </div>
-    </div>
+<h3>
+    d3 Stack Generator
+</h3>
+<div width="100%">
+    <svg id="main" width="100%" height="100%" viewBox="0 0 1000 800">
+    </svg>
 </div>
+<script>
+    let data = [
+        {y01: 120, y02: 180, y03: 100, y04: 77},
+        {y01: 60,  y02: 185, y03: 105, y04: 123},
+        {y01: 100, y02: 215, y03: 110, y04: 131},
+        {y01: 80,  y02: 230, y03: 105, y04: 231},
+        {y01: 120, y02: 240, y03: 105, y04: 44}
+    ];
+    stackcolors = ['#53706f',
+                    '#5ea5a3',
+                    '#96d7ac',
+                    '#c6f1d4']
+    let stack = d3.stack()
+        .keys(['y01', 'y02', 'y03','y04']);
+    let stackedSeries = stack(data);
+    let svg = d3.select('svg#main')
+
+    let groups = svg.selectAll('g')
+        .data(stackedSeries)
+        .enter()
+        .append('g')
+        .style('fill', function(d, i) {
+            return stackcolors[i];
+        });
+
+    groups.selectAll('rect')
+        .data(function(d) {
+            return d;
+        })
+        .enter()
+        .append('rect')
+        .attr('width', function(d) {
+            return d[1] - d[0];
+        })
+        .attr('x', function(d) {
+            return d[0];
+        })
+        .attr('y', function(d, i) {
+            return i * 20;
+        })
+        .attr('height', 20);
+
+</script>
+
 </body>
 </html>
+
+
+
+
+
+
+
+
