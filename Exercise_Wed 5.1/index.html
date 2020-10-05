@@ -1,14 +1,161 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Horizontal Stacked Bar Chart</title>
-    <script src="../libs/d3/d3.min.js"></script>
+<meta charset="utf-8">
+<style> /* set the CSS */
 
-</head>
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+
+</style>
 <body>
-<div style="width: 80%"></div>
+    <div>
+        <h1>Line Chart</h1>
+    </div>
+    <div>
+        <svg id="chart" height=800 width=1100></svg>
+      </div>
+
+      <div>
+        <svg id="my_dataviz2"></svg>
+      </div>
+</body>
+
+<!-- load the d3.js library -->    	
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script>
+
+// set the dimensions and margins of the graph
+var margin = {top: 50, right: 20, bottom: 30, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 810 - margin.top - margin.bottom;
+
+// parse the date / time
+var parseTime = d3.timeParse("%Y-%m");
+
+// set the ranges
+var x = d3.scaleTime().range([0, width]);
+var y = d3.scaleLinear().range([height, 0]);
+
+// define the 1st line
+var vl = d3.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.Ecost); });
+
+// define the 2nd line
+var vl2 = d3.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.Rmaterial); });
+
+var vl3 = d3.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.Wsihp); });
+
+var vl4 = d3.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.Ystorage); });
+
+// append the svg obgect to the body of the page
+// appends a 'group' element to 'svg'
+// moves the 'group' element to the top left margin
+var svg = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// Get the data
+d3.csv("data_sample.csv", function(error, data) {
+  if (error) throw error;
+
+  // format the data
+  data.forEach(function(d) {
+      d.date = parseTime(d.date);
+      d.Ecost = +d.EstimatedCost;
+      d.Rmaterial = +d.RawMaterial;
+      d.Wsihp = +d.Workmanship;
+      d.Ystorage = +d.YearlyStorage;
+  });
+
+  // Scale the range of the data
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  y.domain([0, d3.max(data, function(d) {
+	  return Math.max(d.EstimatedCost, d.RawMaterial,d.Workmanship,d.YearlyStorage); })]);
+  // Add the valueline path.
+  svg.append("path")
+      .data([data])
+      .attr("class", "line")
+      .style("stroke", "#283747")
+      .attr("d", vl);
+
+  // Add the valueline2 path.
+  svg.append("path")
+      .data([data])
+      .attr("class", "line")
+      .style("stroke", "#CB4335")
+      .attr("d", vl2);
+
+svg.append("path")
+      .data([data])
+      .attr("class", "line")
+      .style("stroke", "#6C3483	")
+      .attr("d", vl3);
+
+svg.append("path")
+      .data([data])
+      .attr("class", "line")
+      .style("stroke", "#2874A6")
+      .attr("d", vl4);
+
+  // Add the X Axis
+  svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+  // Add the Y Axis
+  svg.append("g")
+      .call(d3.axisLeft(y));
+
+
+
+   
+      var Svg = d3.select("#my_dataviz2")
+
+// create a list of keys
+var keys = ["date", "EstimatedCost", "RawMaterial", "Workmanship", "YearlyStorage"]
+// Usually you have a color scale in your chart already
+var color = d3.scaleOrdinal()
+  .domain(keys)
+  .range(d3.schemeSet2);
+
+// Add one dot in the legend for each name.
+svg.selectAll("mydots")
+  .data(keys)
+  .enter()
+  .append("circle")
+    .attr("cx", 100)
+    .attr("cy", function(d,i){ return 8 + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+    .attr("r", 7)
+    .style("fill", function(d){ return color(d)})
+
+// Add one dot in the legend for each name.
+
+svg.selectAll("mylabels")
+  .data(keys)
+  .enter()
+  .append("text")
+    .attr("x", 110)
+    .attr("y", function(d,i){ return 8 + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+    .style("fill", function(d){ return color(d)})
+    .text(function(d){ return d})
+    .attr("text-anchor", "left")
+    .style("alignment-baseline", "middle") 
+ 
+
+});
 
 </script>
 </body>

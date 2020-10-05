@@ -7,9 +7,95 @@
 
 </head>
 <body>
-<div style="width: 80%"></div>
+    <style>
+        </style>
+<div>
+    <h1>Stack bar Chart</h1>
+</div>
+<div width="100%">
+    <svg id="chart" width="100%"  height="100%" viewBox="0 0 1000 800">
+    
+    </svg>
+  </div>
+
 <script>
 
+ var svg = d3.select("svg"),
+    /*margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    */
+    margin = 80;
+   width = 900 - 2 * margin;
+   height = 800 - 2 * margin;
+   padding = 90;
+//g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+keys = ['EstimatedCost','RawMaterial', 'Workmanship','YearlyStorage'];
+            
+            var xFormat = "%b-%Y";
+            var parseTime = d3.timeParse("%Y-%m");
+			
+
+    d3.csv("data_sample.csv").then(function(data){
+
+            console.log(data);
+
+            data.forEach(function(d) {
+                d.date = d.date;
+                d.EstimatedCost = +d.EstimatedCost;
+                d.RawMaterial = +d.RawMaterial;
+                d.Workmanship = +d.Workmanship;
+                d.YearlyStorage = +d.YearlyStorage;                
+            });
+
+            
+
+
+             colors = ["b33040", "#d25c4d", "#f2b447", "#d9d574"]
+
+
+             stack = d3.stack().keys(keys);
+
+             series = stack(data);
+
+
+
+             xScale = d3.scaleLinear().domain([0, d3.max(series, d => d3.max(d, d => d[1]))]).range([margin,width]);
+             yScale = d3.scaleTime().domain(d3.extent(data,function(d){return parseTime(d.date);})).range([height, margin]);
+
+            let groups = svg.selectAll('g')
+             .data(series)
+             .enter()
+             .append('g')
+             .style('fill',function(d,i){
+                 return colors[i];
+             });
+
+             groups.selectAll('rect')
+                .data(function(d){
+                      return d;
+                })
+                .enter()
+                .append('rect')
+                .attr('width', function(d) {
+            return xScale(d[1]) - xScale(d[0]);
+        })
+        .attr('x', function(d) {
+            return xScale(d[0]);
+        })
+        .attr('y', function(d) {
+            return yScale(parseTime(d.data.date));
+        })
+        .attr('height', 20);
+        svg.append("g")
+            .attr("transform", "translate("+ 80 + "," + '0' + ")")
+            .call(d3.axisLeft(yScale));
+
+            }
+   );    
+  // format the data
+  
 </script>
 </body>
 </html>
